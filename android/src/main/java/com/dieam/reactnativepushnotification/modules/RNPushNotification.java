@@ -1,7 +1,6 @@
 package com.dieam.reactnativepushnotification.modules;
 
 import android.app.Activity;
-import android.app.Application;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -16,7 +15,6 @@ import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
-import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
 
@@ -28,13 +26,11 @@ import java.util.Map;
 import java.util.Set;
 
 public class RNPushNotification extends ReactContextBaseJavaModule implements ActivityEventListener {
-    private RNPushNotificationHelper mRNPushNotificationHelper;
 
     public RNPushNotification(ReactApplicationContext reactContext) {
         super(reactContext);
 
         reactContext.addActivityEventListener(this);
-        mRNPushNotificationHelper = new RNPushNotificationHelper((Application) reactContext.getApplicationContext());
         registerNotificationsRegistration();
         registerNotificationsReceiveNotification();
     }
@@ -130,23 +126,6 @@ public class RNPushNotification extends ReactContextBaseJavaModule implements Ac
 
         GCMService.putExtra("senderID", senderID);
         reactContext.startService(GCMService);
-    }
-
-    @ReactMethod
-    public void cancelAllLocalNotifications() {
-        mRNPushNotificationHelper.cancelAll();
-    }
-
-    @ReactMethod
-    public void presentLocalNotification(ReadableMap details) {
-        Bundle bundle = Arguments.toBundle(details);
-        mRNPushNotificationHelper.sendNotification(bundle);
-    }
-
-    @ReactMethod
-    public void scheduleLocalNotification(ReadableMap details) {
-        Bundle bundle = Arguments.toBundle(details);
-        mRNPushNotificationHelper.sendNotificationScheduled(bundle);
     }
 
     @ReactMethod

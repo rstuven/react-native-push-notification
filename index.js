@@ -76,7 +76,6 @@ Notifications.configure = function(options: Object) {
 		this._onNotification = this._onNotification.bind(this);
 		this.callNative( 'addEventListener', [ 'register', this._onRegister ] );
 		this.callNative( 'addEventListener', [ 'notification', this._onNotification ] );
-		this.callNative( 'addEventListener', [ 'localNotification', this._onNotification ] );
 
 		if ( typeof options.popInitialNotification === 'undefined' ||
 			 options.popInitialNotification === true ) {
@@ -100,55 +99,6 @@ Notifications.configure = function(options: Object) {
 Notifications.unregister = function() {
 	this.callNative( 'removeEventListener', [ 'register', this._onRegister ] )
 	this.callNative( 'removeEventListener', [ 'notification', this._onNotification ] )
-	this.callNative( 'removeEventListener', [ 'localNotification', this._onNotification ] )
-};
-
-/**
- * Local Notifications
- * @param {Object}		details
- * @param {String}		details.message - The message displayed in the notification alert.
- * @param {String}		details.title  -  ANDROID ONLY: The title displayed in the notification alert.
- * @param {String}		details.ticker -  ANDROID ONLY: The ticker displayed in the status bar.
- * @param {Object}		details.userInfo -  iOS ONLY: The userInfo used in the notification alert.
- */
-Notifications.localNotification = function(details: Object) {
-	if ( Platform.OS === 'ios' ) {
-		const soundName = !details.hasOwnProperty("playSound") || details.playSound === true ? 'default' : '';// empty string results in no sound
-
-		// for valid fields see: https://developer.apple.com/library/ios/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/Chapters/IPhoneOSClientImp.html
-		// alertTitle only valid for apple watch: https://developer.apple.com/library/ios/documentation/iPhone/Reference/UILocalNotification_Class/#//apple_ref/occ/instp/UILocalNotification/alertTitle
-
-		this.handler.presentLocalNotification({
-			alertTitle: details.title,
-			alertBody: details.message,
-			alertAction: details.alertAction,
-			category: details.category,
-			soundName: soundName,
-			applicationIconBadgeNumber: details.number,
-			userInfo: details.userInfo
-		});
-	} else {
-		this.handler.presentLocalNotification(details);
-	}
-};
-
-/**
- * Local Notifications Schedule
- * @param {Object}		details (same as localNotification)
- * @param {Date}		details.date - The date and time when the system should deliver the notification
- */
-Notifications.localNotificationSchedule = function(details: Object) {
-	if ( Platform.OS === 'ios' ) {
-		this.handler.scheduleLocalNotification({
-			fireDate: details.date,
-			alertBody: details.message,
-			userInfo: details.userInfo
-		});
-	} else {
-		details.fireDate = details.date.getTime();
-		delete details.date;
-		this.handler.scheduleLocalNotification(details);
-	}
 };
 
 /* Internal Functions */
@@ -228,17 +178,6 @@ Notifications.requestPermissions = function() {
 };
 
 /* Fallback functions */
-Notifications.presentLocalNotification = function() {
-	return this.callNative('presentLocalNotification', arguments);
-};
-
-Notifications.scheduleLocalNotification = function() {
-	return this.callNative('scheduleLocalNotification', arguments);
-};
-
-Notifications.cancelAllLocalNotifications = function() {
-	return this.callNative('cancelAllLocalNotifications', arguments);
-};
 
 Notifications.setApplicationIconBadgeNumber = function() {
 	return this.callNative('setApplicationIconBadgeNumber', arguments);
